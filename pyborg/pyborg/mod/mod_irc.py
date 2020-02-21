@@ -57,6 +57,7 @@ class ModIRC(irc.bot.SingleServerIRCBot):
 
     def on_welcome(self, c, e):
         logger.info("Connected to IRC server.")
+        time.sleep(5)
         # identify to nickserv
         if self.settings["server"]["nickserv_password"]:
             c.privmsg("nickserv", "identify %s %s" % (c.get_nickname(), self.settings["server"]["nickserv_password"]))
@@ -119,45 +120,33 @@ class ModIRC(irc.bot.SingleServerIRCBot):
     def on_pubmsg(self, c, e):
         if e.source.nick in self.settings["server"]["ignorelist"]:
             return
-        if e.arguments[0][0] == "!":
-            command_name = e.arguments[0][1:]
-            if command_name in ["list", "help"]:
-                help_text = "I have a bunch of commands: "
-                for k, _ in self.registry.registered.items():
-                    help_text += "!{}".format(k)
-                c.privmsg(e.target, help_text)
-            else:
-                if command_name in self.registry.registered:
-                    command = self.registry.registered[command_name]
-                    logger.info("Running command %s", command)
-                    c.privmsg(e.target, command())
 
         a = e.arguments[0].split(":", 1)
         # if talked to directly respond
         # e.g. Pyborg: hello
         if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
             self.learn(self.strip_nicks(a[1], e).encode("utf-8"))
-            msg = self.reply(a[1].encode("utf-8"))
-            if msg:
-                msg = self.replace_nicks(msg, e)
-                logger.info("Response: %s", msg)
-                c.privmsg(e.target, msg)
+#            msg = self.reply(a[1].encode("utf-8"))
+#            if msg:
+#                msg = self.replace_nicks(msg, e)
+#                logger.info("Response: %s", msg)
+#                c.privmsg(e.target, msg)
         else:
             # check if we should reply anyways
 
             logger.debug(type(e.target))
-            if self.settings["speaking"] and self.chans[e.target.lower()]["speaking"]:
-                reply_chance_inverse = 100 - self.chans[e.target.lower()]["reply_chance"]
-                logger.debug("Inverse Reply Chance = %d", reply_chance_inverse)
-                rnd = random.uniform(0, 100)  # nosec
-                logger.debug("Random float: %d", rnd)
-                if rnd > reply_chance_inverse:
-                    msg = self.reply(e.arguments[0].encode("utf-8"))
-                    if msg:
-                        logger.info("Response: %s", msg)
-                        # replacenicks
-                        msg = self.replace_nicks(msg, e)
-                        c.privmsg(e.target, msg)
+#            if self.settings["speaking"] and self.chans[e.target.lower()]["speaking"]:
+#                reply_chance_inverse = 100 - self.chans[e.target.lower()]["reply_chance"]
+#                logger.debug("Inverse Reply Chance = %d", reply_chance_inverse)
+#                rnd = random.uniform(0, 100)  # nosec
+#                logger.debug("Random float: %d", rnd)
+#                if rnd > reply_chance_inverse:
+#                    msg = self.reply(e.arguments[0].encode("utf-8"))
+#                    if msg:
+#                        logger.info("Response: %s", msg)
+#                        # replacenicks
+#                        msg = self.replace_nicks(msg, e)
+#                        c.privmsg(e.target, msg)
             body = self.strip_nicks(e.arguments[0], e).encode("utf-8")
             self.learn(body)
         return

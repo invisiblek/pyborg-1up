@@ -428,7 +428,7 @@ class pyborg:
         if d['max_words']:
             cfg = FakeCfg2(max_words=d['max_words'])
         else:
-            cfg = FakeCfg2(max_words=50000)
+            cfg = FakeCfg2(max_words=False)
         return cfg
 
     def __repr__(self) -> str:

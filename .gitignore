@@ -63,3 +63,4 @@ misc/
 /@*_tmp*
 .coverage*
 *.service
+*.swp

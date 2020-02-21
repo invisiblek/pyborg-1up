@@ -57,6 +57,7 @@ class ModIRC(irc.bot.SingleServerIRCBot):
 
     def on_welcome(self, c, e):
         logger.info("Connected to IRC server.")
+        time.sleep(5)
         # identify to nickserv
         if self.settings["server"]["nickserv_password"]:
             c.privmsg("nickserv", "identify %s %s" % (c.get_nickname(), self.settings["server"]["nickserv_password"]))
@@ -119,18 +120,6 @@ class ModIRC(irc.bot.SingleServerIRCBot):
     def on_pubmsg(self, c, e):
         if e.source.nick in self.settings["server"]["ignorelist"]:
             return
-        if e.arguments[0][0] == "!":
-            command_name = e.arguments[0][1:]
-            if command_name in ["list", "help"]:
-                help_text = "I have a bunch of commands: "
-                for k, _ in self.registry.registered.items():
-                    help_text += "!{}".format(k)
-                c.privmsg(e.target, help_text)
-            else:
-                if command_name in self.registry.registered:
-                    command = self.registry.registered[command_name]
-                    logger.info("Running command %s", command)
-                    c.privmsg(e.target, command())
 
         a = e.arguments[0].split(":", 1)
         # if talked to directly respond

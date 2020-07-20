@@ -92,11 +92,14 @@ class ModIRC(irc.bot.SingleServerIRCBot):
         if not self.settings["multiplex"]:
             self.my_pyborg.learn(body)
         elif requests:
-            ret = requests.post("http://localhost:2001/learn", data={"body": body})
-            if ret.status_code > 499:
-                logger.error("Internal Server Error in pyborg_http. see logs.")
-            else:
-                ret.raise_for_status()
+            try:
+                ret = requests.post("http://localhost:2001/learn", data={"body": body}, timeout=2.5)
+                if ret.status_code > 499:
+                    logger.error("Internal Server Error in pyborg_http. see logs.")
+                else:
+                    ret.raise_for_status()
+            except:
+                logger.error("Timed out when attempting to learn. Moving on with life...")
 
     def reply(self, body):
         "thin wrapper for reply to switch to multiplex mode"
